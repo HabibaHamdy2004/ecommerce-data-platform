@@ -1,0 +1,119 @@
+services:
+
+ 
+
+  # =========================================================
+  # MinIO
+  # =========================================================
+  minio:
+    image: minio/minio:latest
+    container_name: ecommerce-minio
+
+    command: server /data --console-address ":9001"
+
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin12345
+
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+    volumes:
+      - minio_data:/data
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    restart: unless-stopped
+
+
+  # =========================================================
+  # Spark + PySpark
+  # =========================================================
+  spark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: ecommerce-spark
+
+    depends_on:
+      minio:
+        condition: service_healthy
+
+    environment:
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: admin12345
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_REGION: us-east-1
+
+    ports:
+      - "8888:8888"
+
+    volumes:
+      - ./pyspark/scripts:/opt/spark/scripts
+
+    command: >
+      /opt/spark/bin/spark-submit
+      --master local[*]
+      /opt/spark/scripts/test_spark.py
+
+
+
+
+  # Iceberg REST Catalog
+  # =========================================================
+  iceberg-rest:
+    image: apache/iceberg-rest-fixture:latest
+    container_name: ecommerce-iceberg-rest
+
+    depends_on:
+      minio:
+        condition: service_healthy
+
+    environment:
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: admin12345
+      AWS_REGION: us-east-1
+
+      CATALOG_WAREHOUSE: s3://iceberg-warehouse/
+
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+
+      CATALOG_S3_ENDPOINT: http://minio:9000
+
+      CATALOG_S3_PATH__STYLE__ACCESS: "true"
+
+    ports:
+      - "8181:8181"
+
+    restart: unless-stopped
+
+
+  # =========================================================
+  # Trino
+  # =========================================================
+  trino:
+    image: trinodb/trino:latest
+    container_name: ecommerce-trino
+    depends_on:
+      iceberg-rest:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./trino/catalog:/etc/trino/catalog
+    restart: unless-stopped
+
+# =========================================================
+# Volumes
+# =========================================================
+
+volumes:
+
+  minio_data:
+    name: ecommerce_minio_data

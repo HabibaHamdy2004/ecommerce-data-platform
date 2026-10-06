@@ -1,0 +1,25 @@
+# Data files
+data/
+snowflake_upload/
+Brazilian E-Commerce Public Dataset by Olist.csv
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment / secrets
+.env
+.env.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
