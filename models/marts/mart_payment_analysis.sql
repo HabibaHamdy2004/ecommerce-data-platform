@@ -59,7 +59,7 @@ monthly_sales as (
         monthname(o.order_date),
         o.order_status
 
-)
+) 
 
 select *
 
