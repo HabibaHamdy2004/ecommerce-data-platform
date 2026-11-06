@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: olist
+    database: OLIST_DWH
+    schema: RAW
+
+    tables:
+      - name: customers
+      - name: orders
+      - name: order_items
+      - name: payments
+      - name: products
+      - name: seller
