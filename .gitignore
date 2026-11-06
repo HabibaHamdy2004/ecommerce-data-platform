@@ -23,3 +23,27 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+# Secrets and private keys
+*.p8
+*.pem
+.env
+.env.*
+
+# Snowflake key files
+airflow_snowflake_key*
+dbt_snowflake_key*
+
+# Airflow runtime files
+airflow/logs/
+airflow/**/__pycache__/
+airflow/**/.pytest_cache/
+
+# Temporary and backup files
+docker-compose.backup.yml
+minio_test_log.txt
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+!.env.example

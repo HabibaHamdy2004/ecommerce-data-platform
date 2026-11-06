@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+import os
 from pyspark.sql.functions import (
     col,
     trim,
@@ -20,11 +21,28 @@ from pyspark.sql.types import (
 # 1. Spark Session
 # ============================================================
 
+
 spark = (
     SparkSession.builder
     .appName("EcommerceDataCleaning")
+    .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000")
+    .config("spark.hadoop.fs.s3a.path.style.access", "true")
+    .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
+    .config(
+        "spark.hadoop.fs.s3a.access.key",
+        os.environ["AWS_ACCESS_KEY_ID"],
+    )
+    .config(
+        "spark.hadoop.fs.s3a.secret.key",
+        os.environ["AWS_SECRET_ACCESS_KEY"],
+    )
+    .config(
+        "spark.hadoop.fs.s3a.impl",
+        "org.apache.hadoop.fs.s3a.S3AFileSystem",
+    )
     .getOrCreate()
 )
+
 
 print("=" * 80)
 print("STARTING E-COMMERCE DATA CLEANING")

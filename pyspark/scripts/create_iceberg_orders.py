@@ -1,3 +1,4 @@
+import os
 from pyspark.sql import SparkSession
 
 
@@ -53,11 +54,11 @@ spark = (
     )
     .config(
         "spark.sql.catalog.ecommerce.s3.access-key-id",
-        "admin"
+        os.environ["AWS_ACCESS_KEY_ID"]
     )
     .config(
         "spark.sql.catalog.ecommerce.s3.secret-access-key",
-        "admin12345"
+        os.environ["AWS_SECRET_ACCESS_KEY"]
     )
     .config(
         "spark.sql.catalog.ecommerce.client.region",
@@ -71,11 +72,11 @@ spark = (
 
     .config(
         "spark.hadoop.fs.s3a.access.key",
-        "admin"
+        os.environ["AWS_ACCESS_KEY_ID"]
     )
     .config(
         "spark.hadoop.fs.s3a.secret.key",
-        "admin12345"
+        os.environ["AWS_SECRET_ACCESS_KEY"]
     )
     .config(
         "spark.hadoop.fs.s3a.endpoint",
